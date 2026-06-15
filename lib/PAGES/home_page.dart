@@ -24,7 +24,7 @@ class _HomePageState extends State<HomePage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Good morning 👋",
+                  "Good morning ",
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.white60,
@@ -43,7 +43,7 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
 
-            Spacer(), // 👈 pushes avatar to far right
+            Spacer(), 
 
             // Right side — avatar
             CircleAvatar(
