@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:resource_hub/login_page.dart';
+
+import 'package:resource_hub/login_page.dart'; // 👈 Added PAGES/
 
 void main() {
   runApp(const MyApp());

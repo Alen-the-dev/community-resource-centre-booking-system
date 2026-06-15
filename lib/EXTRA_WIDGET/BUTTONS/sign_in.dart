@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:resource_hub/PAGES/home_page.dart';
+import 'package:resource_hub/PAGES/home_screen.dart';
 import 'package:resource_hub/mycolors.dart';
 
 class SignIn extends StatefulWidget {
@@ -18,7 +18,7 @@ class _SignInState extends State<SignIn> {
                     child: ElevatedButton(
                       onPressed: () {
                         Navigator.of(context).push(MaterialPageRoute(builder:(context){
-                          return HomePage();
+                          return HomeScreen();
                         }));//this when pressed opens homepage
                         
                       },

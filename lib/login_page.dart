@@ -3,6 +3,7 @@ import 'package:resource_hub/EXTRA_WIDGET/BUTTONS/create_account.dart';
 import 'package:resource_hub/EXTRA_WIDGET/BUTTONS/sign_in.dart';
 import 'package:resource_hub/EXTRA_WIDGET/custom_container.dart';
 import 'package:resource_hub/mycolors.dart';
+import 'package:resource_hub/PAGES/home_screen.dart'; // 👈 Added PAGES/
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -103,7 +104,7 @@ class LoginPage extends StatelessWidget {
                   CustomContainer(
                     hintText: "••••••••",
                     hintIcon: Icons.lock_outline,
-                    isPassword: true, // 👈 we'll add this below
+                    isPassword: true,
                   ),
 
                   // Forgot password
@@ -124,11 +125,27 @@ class LoginPage extends StatelessWidget {
 
                   const SizedBox(height: 8),
 
-                  const SignIn(), //signing button
+                  // Sign In Trigger Wrap
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => const HomeScreen()),
+                      );
+                    },
+                    child: const SignIn(),
+                  ),
 
                   const SizedBox(height: 12),
 
-                  const CreateAccount(), // creat account button
+                  // Create Account Trigger Wrap
+                  GestureDetector(
+                    onTap: () {
+                      // Optional: Link to a registration page here if needed
+                    },
+                    child: const CreateAccount(),
+                  ),
+                  
                   const SizedBox(height: 24),
 
                   // Footer
