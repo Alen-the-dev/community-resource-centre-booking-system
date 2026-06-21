@@ -1,17 +1,25 @@
 import 'package:flutter/material.dart';
-
-import 'package:resource_hub/login_page.dart'; // 👈 Added PAGES/
+import 'package:provider/provider.dart';
+import 'package:resource_hub/PROVIDERS/booking_provider.dart';
+import 'package:resource_hub/login_page.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => BookingProvider(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(debugShowCheckedModeBanner: false, home: LoginPage());
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: LoginPage(),
+    );
   }
 }

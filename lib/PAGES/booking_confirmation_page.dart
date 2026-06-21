@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:resource_hub/mycolors.dart';
+import 'package:provider/provider.dart';
+import 'package:resource_hub/PROVIDERS/booking_provider.dart';
 
 class BookingConfirmationPage extends StatelessWidget {
   final Map<String, dynamic> resource;
   final DateTime selectedDate;
   final String selectedSlot;
+  final int duration;
 
   const BookingConfirmationPage({
     super.key,
     required this.resource,
     required this.selectedDate,
     required this.selectedSlot,
+    required this.duration,
   });
 
   @override
@@ -52,8 +56,11 @@ class BookingConfirmationPage extends StatelessWidget {
             ),
             child: Column(
               children: [
-                const Icon(Icons.meeting_room_outlined,
-                    color: Colors.white54, size: 40),
+                const Icon(
+                  Icons.meeting_room_outlined,
+                  color: Colors.white54,
+                  size: 40,
+                ),
                 const SizedBox(height: 10),
                 Text(
                   title,
@@ -67,8 +74,7 @@ class BookingConfirmationPage extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   '📍 $location',
-                  style: const TextStyle(
-                      color: Colors.white60, fontSize: 12),
+                  style: const TextStyle(color: Colors.white60, fontSize: 12),
                   textAlign: TextAlign.center,
                 ),
               ],
@@ -85,8 +91,7 @@ class BookingConfirmationPage extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
-                    blurRadius: 6)
+                    color: Colors.black.withOpacity(0.04), blurRadius: 6),
               ],
             ),
             child: Column(
@@ -95,7 +100,11 @@ class BookingConfirmationPage extends StatelessWidget {
                 _divider(),
                 _summaryRow('Time Slot', selectedSlot),
                 _divider(),
-                _summaryRow('Duration', '1 hour'),
+                // 👇 dynamic duration from slot picker
+                _summaryRow(
+                  'Duration',
+                  '$duration hr${duration > 1 ? 's' : ''}',
+                ),
                 _divider(),
                 _summaryRow('Capacity', capacity),
                 _divider(),
@@ -103,7 +112,8 @@ class BookingConfirmationPage extends StatelessWidget {
                 _divider(),
                 _summaryRow('Booked by', 'Alen M.'),
                 _divider(),
-                _summaryRow('Fee', 'Free', valueColor: const Color(0xFF15803D)),
+                _summaryRow('Fee', 'Free',
+                    valueColor: const Color(0xFF15803D)),
               ],
             ),
           ),
@@ -143,14 +153,16 @@ class BookingConfirmationPage extends StatelessWidget {
                 backgroundColor: Mycolors.primary,
                 padding: const EdgeInsets.symmetric(vertical: 15),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
               child: const Text(
                 '✅  Confirm & Book',
                 style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15),
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                ),
               ),
             ),
           ),
@@ -166,14 +178,16 @@ class BookingConfirmationPage extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 15),
                 side: const BorderSide(color: Color(0xFFE2E8F0)),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
               child: const Text(
                 'Cancel',
                 style: TextStyle(
-                    color: Color(0xFF64748B),
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14),
+                  color: Color(0xFF64748B),
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                ),
               ),
             ),
           ),
@@ -185,11 +199,22 @@ class BookingConfirmationPage extends StatelessWidget {
   }
 
   void _onConfirm(BuildContext context) {
+    context.read<BookingProvider>().addBooking({
+      'title': resource['title'] ?? 'Unknown',
+      'location': resource['location'] ?? '',
+      'resourcePic': resource['resourcePic'] ?? '',  // 👈 capital P, matches home_screen
+      'date': selectedDate,
+      'slot': selectedSlot,
+      'duration': duration,                           // 👈 saved correctly
+      'status': 'Upcoming',
+    });
+
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -200,16 +225,20 @@ class BookingConfirmationPage extends StatelessWidget {
                 color: const Color(0xFFDCFCE7),
                 borderRadius: BorderRadius.circular(32),
               ),
-              child: const Icon(Icons.check_rounded,
-                  color: Color(0xFF15803D), size: 36),
+              child: const Icon(
+                Icons.check_rounded,
+                color: Color(0xFF15803D),
+                size: 36,
+              ),
             ),
             const SizedBox(height: 16),
             const Text(
               'Booking Confirmed!',
               style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF1E293B)),
+                fontSize: 17,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF1E293B),
+              ),
             ),
             const SizedBox(height: 6),
             const Text(
@@ -222,16 +251,18 @@ class BookingConfirmationPage extends StatelessWidget {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  // Pop dialog + all booking screens back to Home
                   Navigator.of(context).popUntil((route) => route.isFirst);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Mycolors.primary,
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10)),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                 ),
-                child: const Text('Back to Home',
-                    style: TextStyle(color: Colors.white)),
+                child: const Text(
+                  'Back to Home',
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
             ),
           ],
@@ -242,8 +273,10 @@ class BookingConfirmationPage extends StatelessWidget {
 
   String _formatDate(DateTime date) {
     const months = [
-      '', 'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
+      '',
+      'January', 'February', 'March', 'April',
+      'May', 'June', 'July', 'August',
+      'September', 'October', 'November', 'December',
     ];
     return '${months[date.month]} ${date.day}, ${date.year}';
   }
@@ -251,12 +284,15 @@ class BookingConfirmationPage extends StatelessWidget {
   Widget _sectionLabel(String label) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
-      child: Text(label,
-          style: const TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF94A3B8),
-              letterSpacing: 0.8)),
+      child: Text(
+        label,
+        style: const TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+          color: Color(0xFF94A3B8),
+          letterSpacing: 0.8,
+        ),
+      ),
     );
   }
 
@@ -271,9 +307,10 @@ class BookingConfirmationPage extends StatelessWidget {
                   fontSize: 12, color: Color(0xFF94A3B8))),
           Text(value,
               style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: valueColor ?? const Color(0xFF1E293B))),
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: valueColor ?? const Color(0xFF1E293B),
+              )),
         ],
       ),
     );
@@ -297,7 +334,7 @@ class BookingConfirmationPage extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withOpacity(0.03), blurRadius: 4)
+              color: Colors.black.withOpacity(0.03), blurRadius: 4),
         ],
       ),
       child: Row(
@@ -307,7 +344,9 @@ class BookingConfirmationPage extends StatelessWidget {
             width: 38,
             height: 38,
             decoration: BoxDecoration(
-                color: iconBg, borderRadius: BorderRadius.circular(10)),
+              color: iconBg,
+              borderRadius: BorderRadius.circular(10),
+            ),
             child: Icon(icon, size: 20, color: iconColor),
           ),
           const SizedBox(width: 12),
@@ -317,9 +356,10 @@ class BookingConfirmationPage extends StatelessWidget {
               children: [
                 Text(title,
                     style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF1E293B))),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF1E293B),
+                    )),
                 const SizedBox(height: 3),
                 Text(subtitle,
                     style: const TextStyle(

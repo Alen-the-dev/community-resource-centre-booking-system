@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:resource_hub/PAGES/home_page_content.dart'; 
+import 'package:resource_hub/PAGES/home_page_content.dart';
+import 'package:resource_hub/SCREENS/my_bookings_screen.dart'; 
 
 
 class HomeScreen extends StatefulWidget {
@@ -14,7 +15,7 @@ class _MainShellNavigationState extends State<HomeScreen> {
 
   final List<Widget> _appScreens = [
     const HomePageContent(), // Your original layout script profile
-    const Center(child: Text('📅 My Bookings View', style: TextStyle(color: Color(0xFF64748B)))),
+    const MyBookingsScreen(),
     const Center(child: Text('📤 Upload New Resource View', style: TextStyle(color: Color(0xFF64748B)))),
   ];
 

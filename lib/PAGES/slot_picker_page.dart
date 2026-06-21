@@ -14,6 +14,7 @@ class SlotPickerPage extends StatefulWidget {
 class _SlotPickerPageState extends State<SlotPickerPage> {
   DateTime _selectedDate = DateTime.now();
   String? _selectedSlot;
+  int _selectedDuration = 1; // default 1 hour
 
   final List<int> _bookedDays = [4, 10, 18];
 
@@ -28,6 +29,37 @@ class _SlotPickerPageState extends State<SlotPickerPage> {
     {'time': '3:00 PM', 'taken': false},
     {'time': '4:00 PM', 'taken': false},
   ];
+
+  final List<int> _durations = [1, 2, 3];
+
+  // Converts '9:00 AM' + 2 hours → '11:00 AM'
+  String _calculateEndTime(String startTime, int hours) {
+    final parts = startTime.split(' ');
+    final timeParts = parts[0].split(':');
+    int hour = int.parse(timeParts[0]);
+    final int minute = int.parse(timeParts[1]);
+    final String period = parts[1];
+
+    // Convert to 24hr
+    if (period == 'PM' && hour != 12) hour += 12;
+    if (period == 'AM' && hour == 12) hour = 0;
+
+    hour += hours;
+
+    // Convert back to 12hr
+    String newPeriod = hour >= 12 ? 'PM' : 'AM';
+    if (hour > 12) hour -= 12;
+    if (hour == 0) hour = 12;
+
+    final String minuteStr = minute.toString().padLeft(2, '0');
+    return '$hour:$minuteStr $newPeriod';
+  }
+
+  String get _formattedSlot {
+    if (_selectedSlot == null) return '';
+    final end = _calculateEndTime(_selectedSlot!, _selectedDuration);
+    return '$_selectedSlot – $end';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +85,7 @@ class _SlotPickerPageState extends State<SlotPickerPage> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          // Month navigation
+          // ── Month navigation ──
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -89,7 +121,7 @@ class _SlotPickerPageState extends State<SlotPickerPage> {
           _buildCalendar(),
           const SizedBox(height: 8),
 
-          // Legend
+          // ── Legend ──
           Row(
             children: [
               _legendItem(const Color(0xFFDCFCE7), 'Available'),
@@ -101,6 +133,7 @@ class _SlotPickerPageState extends State<SlotPickerPage> {
           ),
           const SizedBox(height: 16),
 
+          // ── Time slots ──
           const Text('AVAILABLE TIME SLOTS',
               style: TextStyle(
                   fontSize: 11,
@@ -111,26 +144,84 @@ class _SlotPickerPageState extends State<SlotPickerPage> {
           _buildSlotGrid(),
           const SizedBox(height: 20),
 
+          // ── Duration picker (only shows after slot is selected) ──
+          if (_selectedSlot != null) ...[
+            const Text('SELECT DURATION',
+                style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF94A3B8),
+                    letterSpacing: 0.8)),
+            const SizedBox(height: 10),
+            _buildDurationChips(),
+            const SizedBox(height: 16),
+
+            // ── Booking summary preview ──
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1A1A2E),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.access_time_outlined,
+                      color: Colors.white60, size: 18),
+                  const SizedBox(width: 10),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Your booking slot',
+                          style: TextStyle(
+                              fontSize: 11, color: Colors.white60)),
+                      const SizedBox(height: 2),
+                      Text(
+                        _formattedSlot,
+                        style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white),
+                      ),
+                    ],
+                  ),
+                  const Spacer(),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.white12,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      '$_selectedDuration hr${_selectedDuration > 1 ? 's' : ''}',
+                      style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+
+          // ── Confirm button ──
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
               onPressed: _selectedSlot == null
                   ? null
                   : () {
-                     Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => BookingConfirmationPage(
-              resource: widget.resource,
-              selectedDate: _selectedDate,
-              selectedSlot: _selectedSlot!,
-            ),
-          ),
-        );
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                              'Booked: $_selectedSlot on ${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}'),
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => BookingConfirmationPage(
+                            resource: widget.resource,
+                            selectedDate: _selectedDate,
+                            selectedSlot: _formattedSlot,
+                            duration: _selectedDuration,
+                          ),
                         ),
                       );
                     },
@@ -142,7 +233,9 @@ class _SlotPickerPageState extends State<SlotPickerPage> {
                     borderRadius: BorderRadius.circular(12)),
               ),
               child: Text(
-                _selectedSlot == null ? 'Select a time slot' : 'Confirm Slot →',
+                _selectedSlot == null
+                    ? 'Select a time slot'
+                    : 'Confirm Slot →',
                 style: TextStyle(
                   color: _selectedSlot == null
                       ? const Color(0xFF94A3B8)
@@ -156,6 +249,42 @@ class _SlotPickerPageState extends State<SlotPickerPage> {
           const SizedBox(height: 24),
         ],
       ),
+    );
+  }
+
+  Widget _buildDurationChips() {
+    return Row(
+      children: _durations.map((hrs) {
+        final bool isSelected = _selectedDuration == hrs;
+        return GestureDetector(
+          onTap: () => setState(() => _selectedDuration = hrs),
+          child: Container(
+            margin: const EdgeInsets.only(right: 10),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            decoration: BoxDecoration(
+              color: isSelected
+                  ? const Color(0xFF1A1A2E)
+                  : Colors.white,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: isSelected
+                    ? const Color(0xFF1A1A2E)
+                    : const Color(0xFFE2E8F0),
+                width: 1.5,
+              ),
+            ),
+            child: Text(
+              '$hrs hr${hrs > 1 ? 's' : ''}',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: isSelected ? Colors.white : const Color(0xFF334155),
+              ),
+            ),
+          ),
+        );
+      }).toList(),
     );
   }
 
@@ -280,7 +409,10 @@ class _SlotPickerPageState extends State<SlotPickerPage> {
         return GestureDetector(
           onTap: taken
               ? null
-              : () => setState(() => _selectedSlot = slot['time']),
+              : () => setState(() {
+                    _selectedSlot = slot['time'];
+                    _selectedDuration = 1; // reset duration on new slot
+                  }),
           child: Container(
             decoration: BoxDecoration(
               color: taken
