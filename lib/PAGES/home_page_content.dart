@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:resource_hub/EXTRA_WIDGET/searchbar.dart';
 import 'package:resource_hub/mycolors.dart';
 import 'package:resource_hub/EXTRA_WIDGET/categories.dart';
 import 'package:resource_hub/EXTRA_WIDGET/resources.dart';
 import 'package:resource_hub/PAGES/resource_detail_page.dart';
+import 'package:resource_hub/PROVIDERS/resource_provider.dart';
 
 class HomePageContent extends StatefulWidget {
   const HomePageContent({super.key});
@@ -17,33 +19,6 @@ class _HomePageContentState extends State<HomePageContent> {
   String searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
 
-  final List<Map<String, dynamic>> allResources = [
-    {
-      'title': 'Conference Room A',
-      'location': 'Block C, Floor 2',
-      'capacity': '30 people',
-      'category': 'Rooms',
-      'resourcePic':
-          'https://webbox.imgix.net/images/yquusvyjiwygqitw/064bfb4e-d1d8-47de-800c-b126e8a90335.jpg?auto=format,compress&fit=crop&crop=entropy',
-    },
-    {
-      'title': 'Training Lab — 20 PCs',
-      'location': 'ICT Block, Ground Floor',
-      'capacity': '20 people',
-      'category': 'Equipment',
-      'resourcePic':
-          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSOvf0YUEs9owIhg8JNiwOeEksgCQBuvUsjvA&s',
-    },
-    {
-      'title': 'Ardhi Football Pitch',
-      'location': 'Kigamboni, Kings Academy',
-      'capacity': '50 max',
-      'category': 'Sports',
-      'resourcePic':
-          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRaaSNxY4ipxlFoPXLlj12hTKJ2T333uaRkQA&s',
-    },
-  ];
-
   @override
   void dispose() {
     _searchController.dispose();
@@ -52,6 +27,8 @@ class _HomePageContentState extends State<HomePageContent> {
 
   @override
   Widget build(BuildContext context) {
+    final allResources = context.watch<ResourceProvider>().resources;
+
     final filteredResources = allResources.where((resource) {
       final matchesCategory = selectedFilter == 'All' ||
           resource['category'].toString().toLowerCase() ==
@@ -138,8 +115,7 @@ class _HomePageContentState extends State<HomePageContent> {
                 ? const Center(
                     child: Text(
                       'No resources match your search.',
-                      style: TextStyle(
-                          color: Color(0xFF94A3B8), fontSize: 13),
+                      style: TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
                     ),
                   )
                 : ListView.builder(
@@ -152,8 +128,7 @@ class _HomePageContentState extends State<HomePageContent> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) =>
-                                  ResourceDetailPage(resource: item),
+                              builder: (_) => ResourceDetailPage(resource: item),
                             ),
                           );
                         },

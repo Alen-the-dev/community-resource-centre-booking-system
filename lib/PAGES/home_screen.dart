@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:resource_hub/PAGES/home_page_content.dart';
-import 'package:resource_hub/SCREENS/my_bookings_screen.dart'; 
 
+import 'package:resource_hub/SCREENS/my_bookings_screen_clean.dart';
+import 'package:resource_hub/SCREENS/upload_resource_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -14,9 +15,9 @@ class _MainShellNavigationState extends State<HomeScreen> {
   int _currentTabIndex = 0;
 
   final List<Widget> _appScreens = [
-    const HomePageContent(), // Your original layout script profile
+    const HomePageContent(),
     const MyBookingsScreen(),
-    const Center(child: Text('📤 Upload New Resource View', style: TextStyle(color: Color(0xFF64748B)))),
+    const UploadResourceScreen(),
   ];
 
   @override
@@ -25,15 +26,12 @@ class _MainShellNavigationState extends State<HomeScreen> {
       body: _appScreens[_currentTabIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentTabIndex,
-        onTap: (int index) {
-          setState(() {
-            _currentTabIndex = index;
-          });
-        },
+        onTap: (int index) => setState(() => _currentTabIndex = index),
         backgroundColor: Colors.white,
         selectedItemColor: const Color(0xFF1A1A2E),
         unselectedItemColor: const Color(0xFF94A3B8),
-        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
+        selectedLabelStyle:
+            const TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
         unselectedLabelStyle: const TextStyle(fontSize: 11),
         items: const [
           BottomNavigationBarItem(

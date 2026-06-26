@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:resource_hub/PROVIDERS/booking_provider.dart';
+import 'package:resource_hub/PROVIDERS/resource_provider.dart';
 import 'package:resource_hub/login_page.dart';
 
 void main() {
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => BookingProvider(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ResourceProvider()),
+        ChangeNotifierProvider(create: (_) => BookingProvider()),
+      ],
       child: const MyApp(),
     ),
   );

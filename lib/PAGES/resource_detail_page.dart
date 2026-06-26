@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:resource_hub/EXTRA_WIDGET/resource_image.dart';
 import 'package:resource_hub/PAGES/slot_picker_page.dart';
 import 'package:resource_hub/mycolors.dart';
 
@@ -33,14 +34,9 @@ class ResourceDetailPage extends StatelessWidget {
               background: Stack(
                 fit: StackFit.expand,
                 children: [
-                  Image.network(
-                    resource['resourcePic'],
+                  ResourceImage(
+                    resource: resource,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) => Container(
-                      color: const Color(0xFF1A1A2E),
-                      child: const Icon(Icons.image_not_supported,
-                          color: Colors.white38, size: 48),
-                    ),
                   ),
                   // Dark gradient at bottom for title readability
                   Container(

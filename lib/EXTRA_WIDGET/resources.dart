@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:resource_hub/EXTRA_WIDGET/resource_image.dart';
 
 class Resources extends StatelessWidget {
   final Map<String, dynamic> resource;
@@ -16,7 +17,6 @@ class Resources extends StatelessWidget {
     final String location = resource['location'] ?? '';
     final String capacity = resource['capacity'] ?? '';
     final String category = resource['category'] ?? '';
-    final String? pic = resource['resourcePic'];
 
     final Color themeColor = category == 'Rooms'
         ? const Color(0xFF4F46E5)
@@ -40,34 +40,21 @@ class Resources extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Image area
+            // ── Image area ──
             Container(
               height: 140,
               width: double.infinity,
-              decoration: BoxDecoration(
-                color: const Color(0xFFE2E8F0),
+              decoration: const BoxDecoration(
+                color: Color(0xFFE2E8F0),
                 borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(16)),
+                    BorderRadius.vertical(top: Radius.circular(16)),
               ),
               clipBehavior: Clip.hardEdge,
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  if (pic != null && pic.isNotEmpty)
-                    Image.network(
-                      pic,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, _, _) => const Center(
-                        child: Icon(Icons.image_not_supported,
-                            color: Color(0xFF94A3B8), size: 36),
-                      ),
-                    )
-                  else
-                    const Center(
-                      child: Icon(Icons.image_not_supported,
-                          color: Color(0xFF94A3B8), size: 36),
-                    ),
-                  // Category badge
+                  ResourceImage(resource: resource, height: 140),
+                  // ── Category badge ──
                   Positioned(
                     top: 12,
                     right: 12,
@@ -92,7 +79,7 @@ class Resources extends StatelessWidget {
                 ],
               ),
             ),
-            // Info
+            // ── Info ──
             Padding(
               padding: const EdgeInsets.all(14),
               child: Column(
