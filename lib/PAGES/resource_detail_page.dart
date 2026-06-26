@@ -36,7 +36,7 @@ class ResourceDetailPage extends StatelessWidget {
                   Image.network(
                     resource['resourcePic'],
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
+                    errorBuilder: (_, _, _) => Container(
                       color: const Color(0xFF1A1A2E),
                       child: const Icon(Icons.image_not_supported,
                           color: Colors.white38, size: 48),
@@ -206,7 +206,7 @@ class ResourceDetailPage extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 4,
           )
         ],

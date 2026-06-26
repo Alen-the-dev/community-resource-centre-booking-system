@@ -91,7 +91,7 @@ class BookingConfirmationPage extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                    color: Colors.black.withOpacity(0.04), blurRadius: 6),
+                    color: Colors.black.withValues(alpha: 0.04), blurRadius: 6),
               ],
             ),
             child: Column(
@@ -334,7 +334,7 @@ class BookingConfirmationPage extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withOpacity(0.03), blurRadius: 4),
+              color: Colors.black.withValues(alpha: 0.03), blurRadius: 4),
         ],
       ),
       child: Row(

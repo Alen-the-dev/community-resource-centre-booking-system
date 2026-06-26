@@ -52,7 +52,7 @@ class _CategoriesListState extends State<CategoriesList> {
                 ),
                 boxShadow: isActive ? [
                   BoxShadow(
-                    color: const Color(0xFF1A1A2E).withOpacity(0.2),
+                    color: const Color(0xFF1A1A2E).withValues(alpha: 0.2),
                     blurRadius: 4,
                     offset: const Offset(0, 2),
                   )

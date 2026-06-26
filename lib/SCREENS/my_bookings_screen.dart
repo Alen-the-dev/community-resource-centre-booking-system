@@ -71,7 +71,7 @@ class MyBookingsScreen extends StatelessWidget {
           color: Colors.white,
           borderRadius: BorderRadius.circular(14),
           boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 6)
+            BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 6)
           ],
         ),
         child: Row(
@@ -89,7 +89,7 @@ class MyBookingsScreen extends StatelessWidget {
                       width: 100,
                       height: 100,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => _imageFallback(),
+                      errorBuilder: (_, _, _) => _imageFallback(),
                     )
                   : _imageFallback(),
             ),
@@ -119,7 +119,7 @@ class MyBookingsScreen extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
-                            color: _statusColor(booking['status']).withOpacity(0.12),
+                            color: _statusColor(booking['status']).withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
@@ -218,7 +218,7 @@ class MyBookingsScreen extends StatelessWidget {
                       width: double.infinity,
                       height: 160,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => _imageFallback(height: 160),
+                      errorBuilder: (_, _, _) => _imageFallback(height: 160),
                     )
                   : _imageFallback(height: 160),
             ),
@@ -242,7 +242,7 @@ class MyBookingsScreen extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
                   decoration: BoxDecoration(
-                    color: _statusColor(booking['status']).withOpacity(0.12),
+                    color: _statusColor(booking['status']).withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
