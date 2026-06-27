@@ -49,9 +49,16 @@ class BookingProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // ── Cancel a booking by index ──
+  // ── Delete a booking by index ──
   Future<void> cancelBooking(int index) async {
-    _bookings[index]['status'] = 'Cancelled';
+    _bookings.removeAt(index);
+    await _saveToPrefs();
+    notifyListeners();
+  }
+
+  // ── Mark booking as Checked In ──
+  Future<void> checkIn(int index) async {
+    _bookings[index]['status'] = 'Checked In';
     await _saveToPrefs();
     notifyListeners();
   }

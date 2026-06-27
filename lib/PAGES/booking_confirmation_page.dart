@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:resource_hub/mycolors.dart';
+import 'package:resource_hub/utils.dart';
 import 'package:provider/provider.dart';
 import 'package:resource_hub/PROVIDERS/booking_provider.dart';
 
@@ -96,7 +97,7 @@ class BookingConfirmationPage extends StatelessWidget {
             ),
             child: Column(
               children: [
-                _summaryRow('Date', _formatDate(selectedDate)),
+                _summaryRow('Date', formatDate(selectedDate)),
                 _divider(),
                 _summaryRow('Time Slot', selectedSlot),
                 _divider(),
@@ -202,10 +203,11 @@ class BookingConfirmationPage extends StatelessWidget {
     context.read<BookingProvider>().addBooking({
       'title': resource['title'] ?? 'Unknown',
       'location': resource['location'] ?? '',
-      'resourcePic': resource['resourcePic'] ?? '',  // 👈 capital P, matches home_screen
+      'resourcePic': resource['resourcePic'] ?? '',
+      'isBase64': resource['isBase64'] ?? false,
       'date': selectedDate,
       'slot': selectedSlot,
-      'duration': duration,                           // 👈 saved correctly
+      'duration': duration,
       'status': 'Upcoming',
     });
 
@@ -269,16 +271,6 @@ class BookingConfirmationPage extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  String _formatDate(DateTime date) {
-    const months = [
-      '',
-      'January', 'February', 'March', 'April',
-      'May', 'June', 'July', 'August',
-      'September', 'October', 'November', 'December',
-    ];
-    return '${months[date.month]} ${date.day}, ${date.year}';
   }
 
   Widget _sectionLabel(String label) {

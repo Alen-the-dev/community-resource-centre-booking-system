@@ -32,7 +32,7 @@ class MyBookingsScreen extends StatelessWidget {
                 final booking = bookings[index];
                 return BookingCard(
                   booking: booking,
-                  onTap: () => showBookingDetailSheet(context, booking),
+                  onTap: () => showBookingDetailSheet(context, booking, index)
                 );
               },
             ),

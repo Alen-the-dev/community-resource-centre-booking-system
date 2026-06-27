@@ -17,6 +17,8 @@ Color statusColor(String status) {
       return const Color(0xFFD97706);
     case 'Cancelled':
       return const Color(0xFFDC2626);
+    case 'Checked In':
+      return const Color(0xFF2563EB);
     default:
       return const Color(0xFF6D28D9);
   }

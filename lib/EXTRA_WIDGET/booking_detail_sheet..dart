@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:resource_hub/EXTRA_WIDGET/resource_image.dart';
+import 'package:resource_hub/PAGES/nfc_simulator_page.dart';
+import 'package:resource_hub/PROVIDERS/booking_provider.dart';
 import 'package:resource_hub/mycolors.dart';
 import 'package:resource_hub/utils.dart';
 
 void showBookingDetailSheet(
-    BuildContext context, Map<String, dynamic> booking) {
+    BuildContext context, Map<String, dynamic> booking, int bookingIndex) {
   final DateTime date = booking['date'];
-  final String imageUrl = booking['resourcePic'] ?? '';
   final int duration = booking['duration'] as int;
+  final bool isUpcoming = booking['status'] == 'Upcoming';
 
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
-    builder: (_) => Container(
+    builder: (sheetContext) => Container(
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -35,15 +39,11 @@ void showBookingDetailSheet(
           // ── Image ──
           ClipRRect(
             borderRadius: BorderRadius.circular(14),
-            child: imageUrl.isNotEmpty
-                ? Image.network(
-                    imageUrl,
-                    width: double.infinity,
-                    height: 160,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) => _imageFallback(),
-                  )
-                : _imageFallback(),
+            child: ResourceImage(
+              resource: booking,
+              width: double.infinity,
+              height: 160,
+            ),
           ),
 
           const SizedBox(height: 16),
@@ -84,7 +84,8 @@ void showBookingDetailSheet(
             alignment: Alignment.centerLeft,
             child: Text(
               '📍 ${booking['location']}',
-              style: const TextStyle(fontSize: 13, color: Color(0xFF94A3B8)),
+              style:
+                  const TextStyle(fontSize: 13, color: Color(0xFF94A3B8)),
             ),
           ),
 
@@ -94,20 +95,77 @@ void showBookingDetailSheet(
 
           // ── Detail rows ──
           _detailRow(Icons.calendar_today_outlined, 'Date', formatDate(date)),
-          _detailRow(Icons.access_time_outlined, 'Time Slot', booking['slot']),
+          _detailRow(
+              Icons.access_time_outlined, 'Time Slot', booking['slot']),
           _detailRow(Icons.timelapse_outlined, 'Duration',
               '$duration hr${duration > 1 ? 's' : ''}'),
           _detailRow(Icons.attach_money_outlined, 'Fee', 'Free'),
-          _detailRow(
-              Icons.nfc_outlined, 'Check-in', 'NFC tap required at entrance'),
+          _detailRow(Icons.nfc_outlined, 'Check-in',
+              'NFC tap required at entrance'),
 
           const SizedBox(height: 20),
+
+          // ── NFC Check-in button — only for Upcoming bookings ──
+          if (isUpcoming) ...[
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.pop(sheetContext);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => NfcSimulatorPage(
+                        booking: booking,
+                        bookingIndex: bookingIndex,
+                      ),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.nfc_outlined, color: Colors.white),
+                label: const Text('Simulate NFC Check-in',
+                    style: TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.bold)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF6D28D9),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+          ],
+
+          // ── Cancel button — only for Upcoming bookings ──
+          if (isUpcoming) ...[
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton(
+                onPressed: () =>
+                    _confirmCancel(sheetContext, context, bookingIndex),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  side: const BorderSide(color: Color(0xFFDC2626), width: 1.5),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                ),
+                child: const Text(
+                  'Cancel Booking',
+                  style: TextStyle(
+                      color: Color(0xFFDC2626),
+                      fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+          ],
 
           // ── Close button ──
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => Navigator.pop(sheetContext),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Mycolors.primary,
                 padding: const EdgeInsets.symmetric(vertical: 14),
@@ -126,6 +184,44 @@ void showBookingDetailSheet(
   );
 }
 
+// ── Confirm dialog before cancelling ──
+void _confirmCancel(
+    BuildContext sheetContext, BuildContext pageContext, int bookingIndex) {
+  showDialog(
+    context: sheetContext,
+    builder: (_) => AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      title: const Text('Cancel Booking',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+      content: const Text(
+        'Are you sure you want to cancel this booking?',
+        style: TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(sheetContext),
+          child: const Text('No, Keep It',
+              style: TextStyle(color: Color(0xFF64748B))),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            pageContext.read<BookingProvider>().cancelBooking(bookingIndex);
+            Navigator.pop(sheetContext); // close dialog
+            Navigator.pop(sheetContext); // close sheet
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFFDC2626),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10)),
+          ),
+          child: const Text('Yes, Cancel',
+              style: TextStyle(color: Colors.white)),
+        ),
+      ],
+    ),
+  );
+}
+
 Widget _detailRow(IconData icon, String label, String value) {
   return Padding(
     padding: const EdgeInsets.symmetric(vertical: 6),
@@ -134,7 +230,8 @@ Widget _detailRow(IconData icon, String label, String value) {
         Icon(icon, size: 16, color: const Color(0xFF94A3B8)),
         const SizedBox(width: 10),
         Text(label,
-            style: const TextStyle(fontSize: 13, color: Color(0xFF94A3B8))),
+            style:
+                const TextStyle(fontSize: 13, color: Color(0xFF94A3B8))),
         const Spacer(),
         Text(value,
             style: const TextStyle(
@@ -143,15 +240,5 @@ Widget _detailRow(IconData icon, String label, String value) {
                 color: Color(0xFF1E293B))),
       ],
     ),
-  );
-}
-
-Widget _imageFallback() {
-  return Container(
-    width: double.infinity,
-    height: 160,
-    color: const Color(0xFFEDE9FE),
-    child: const Icon(Icons.meeting_room_outlined,
-        color: Color(0xFF6D28D9), size: 32),
   );
 }
