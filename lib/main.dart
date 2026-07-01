@@ -5,8 +5,12 @@ import 'package:resource_hub/PROVIDERS/booking_provider.dart';
 import 'package:resource_hub/PROVIDERS/resource_provider.dart';
 import 'package:resource_hub/login_page.dart';
 import 'package:resource_hub/PAGES/home_screen.dart';
-
-void main() {
+import 'package:supabase_flutter/supabase_flutter.dart';
+Future<void> main() async {
+  await Supabase.initialize(
+  url: 'https://jbpzikjngeacikouuahp.supabase.co',
+  anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpicHppa2puZ2VhY2lrb3V1YWhwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI5MjYwNDIsImV4cCI6MjA5ODUwMjA0Mn0.OCpzQ1gkvGpT9lSrISTlkwV_MQYzH-V3pHCc3nW_IT4',
+);
   runApp(
     MultiProvider(
       providers: [

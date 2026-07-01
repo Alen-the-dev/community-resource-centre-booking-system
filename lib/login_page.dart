@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:resource_hub/EXTRA_WIDGET/BUTTONS/create_account.dart';
 import 'package:resource_hub/EXTRA_WIDGET/BUTTONS/sign_in.dart';
 import 'package:resource_hub/EXTRA_WIDGET/custom_container.dart';
 import 'package:resource_hub/mycolors.dart';
 import 'package:resource_hub/PAGES/home_screen.dart';
-
+import 'package:supabase_flutter/supabase_flutter.dart';
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -38,53 +37,53 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Future<void> _handleCreateAccount() async {
-    final firstName = _firstNameController.text.trim();
-    final lastName = _lastNameController.text.trim();
-    final email = _emailController.text.trim();
-    final password = _passwordController.text;
+ Future<void> _handleCreateAccount() async {
+  final firstName = _firstNameController.text.trim();
+  final lastName = _lastNameController.text.trim();
+  final email = _emailController.text.trim();
+  final password = _passwordController.text;
 
-    if (firstName.isEmpty || lastName.isEmpty || email.isEmpty || password.isEmpty) {
-      _showError("Fill in first name, last name, email and password.");
-      return;
-    }
-
-    setState(() => _loading = true);
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('userFirstName', firstName);
-    await prefs.setString('userLastName', lastName);
-    await prefs.setString('userEmail', email);
-    await prefs.setString('userPassword', password); // local-only fake auth, not for production
-    await prefs.setBool('isLoggedIn', true);
-    setState(() => _loading = false);
-
-    if (!mounted) return;
-    _goHome();
+  if (firstName.isEmpty || lastName.isEmpty || email.isEmpty || password.isEmpty) {
+    _showError("Fill in first name, last name, email and password.");
+    return;
   }
 
-  Future<void> _handleSignIn() async {
-    final email = _emailController.text.trim();
-    final password = _passwordController.text;
-
-    setState(() => _loading = true);
-    final prefs = await SharedPreferences.getInstance();
-    final savedEmail = prefs.getString('userEmail');
-    final savedPassword = prefs.getString('userPassword');
+  setState(() => _loading = true);
+  try {
+    await Supabase.instance.client.auth.signUp(
+      email: email,
+      password: password,
+      data: {'first_name': firstName, 'last_name': lastName},
+    );
+  } catch (e) {
     setState(() => _loading = false);
-
-    if (savedEmail == null) {
-      _showError("No account found. Create one first.");
-      return;
-    }
-    if (email != savedEmail || password != savedPassword) {
-      _showError("Wrong email or password.");
-      return;
-    }
-
-    await prefs.setBool('isLoggedIn', true);
-    if (!mounted) return;
-    _goHome();
+    _showError(e.toString());
+    return;
   }
+  setState(() => _loading = false);
+  if (!mounted) return;
+  _goHome();
+}
+
+Future<void> _handleSignIn() async {
+  final email = _emailController.text.trim();
+  final password = _passwordController.text;
+
+  setState(() => _loading = true);
+  try {
+    await Supabase.instance.client.auth.signInWithPassword(
+      email: email,
+      password: password,
+    );
+  } catch (e) {
+    setState(() => _loading = false);
+    _showError("Wrong email or password.");
+    return;
+  }
+  setState(() => _loading = false);
+  if (!mounted) return;
+  _goHome();
+}
 
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
