@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:resource_hub/mycolors.dart';
 
 class CreateAccount extends StatefulWidget {
-  const CreateAccount({super.key});
+  final VoidCallback? onPressed;
+
+  const CreateAccount({super.key, this.onPressed});
 
   @override
   State<CreateAccount> createState() => _CreateAccountState();
@@ -15,7 +17,7 @@ class _CreateAccountState extends State<CreateAccount> {
                     width: double.infinity,
                     height: 50,
                     child: OutlinedButton(
-                      onPressed: () {},
+                      onPressed: widget.onPressed,
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(
                           color: Color(0xFFE2E8F0),

@@ -1,12 +1,96 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:resource_hub/EXTRA_WIDGET/BUTTONS/create_account.dart';
 import 'package:resource_hub/EXTRA_WIDGET/BUTTONS/sign_in.dart';
 import 'package:resource_hub/EXTRA_WIDGET/custom_container.dart';
 import 'package:resource_hub/mycolors.dart';
-import 'package:resource_hub/PAGES/home_screen.dart'; // 👈 Added PAGES/
+import 'package:resource_hub/PAGES/home_screen.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  bool _isSignUp = false; // false = Sign In mode, true = Create Account mode
+  bool _loading = false;
+
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  void _goHome() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const HomeScreen()),
+    );
+  }
+
+  Future<void> _handleCreateAccount() async {
+    final firstName = _firstNameController.text.trim();
+    final lastName = _lastNameController.text.trim();
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+
+    if (firstName.isEmpty || lastName.isEmpty || email.isEmpty || password.isEmpty) {
+      _showError("Fill in first name, last name, email and password.");
+      return;
+    }
+
+    setState(() => _loading = true);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('userFirstName', firstName);
+    await prefs.setString('userLastName', lastName);
+    await prefs.setString('userEmail', email);
+    await prefs.setString('userPassword', password); // local-only fake auth, not for production
+    await prefs.setBool('isLoggedIn', true);
+    setState(() => _loading = false);
+
+    if (!mounted) return;
+    _goHome();
+  }
+
+  Future<void> _handleSignIn() async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+
+    setState(() => _loading = true);
+    final prefs = await SharedPreferences.getInstance();
+    final savedEmail = prefs.getString('userEmail');
+    final savedPassword = prefs.getString('userPassword');
+    setState(() => _loading = false);
+
+    if (savedEmail == null) {
+      _showError("No account found. Create one first.");
+      return;
+    }
+    if (email != savedEmail || password != savedPassword) {
+      _showError("Wrong email or password.");
+      return;
+    }
+
+    await prefs.setBool('isLoggedIn', true);
+    if (!mounted) return;
+    _goHome();
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,9 +123,9 @@ class LoginPage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 14),
-                  const Text(
-                    "Welcome",
-                    style: TextStyle(
+                  Text(
+                    _isSignUp ? "Get Started" : "Welcome",
+                    style: const TextStyle(
                       fontSize: 15,
                       color: Colors.white60,
                       fontWeight: FontWeight.w500,
@@ -72,6 +156,42 @@ class LoginPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  if (_isSignUp) ...[
+                    const Text(
+                      "FIRST NAME",
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Color(0xFF94A3B8),
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.8,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    CustomContainer(
+                      hintText: "Jane",
+                      hintIcon: Icons.person_outline,
+                      controller: _firstNameController,
+                    ),
+                    const SizedBox(height: 16),
+
+                    const Text(
+                      "LAST NAME",
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Color(0xFF94A3B8),
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.8,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    CustomContainer(
+                      hintText: "Doe",
+                      hintIcon: Icons.person_outline,
+                      controller: _lastNameController,
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+
                   // Email
                   const Text(
                     "EMAIL ADDRESS",
@@ -86,6 +206,7 @@ class LoginPage extends StatelessWidget {
                   CustomContainer(
                     hintText: "user@example.com",
                     hintIcon: Icons.email_outlined,
+                    controller: _emailController,
                   ),
 
                   const SizedBox(height: 16),
@@ -105,47 +226,62 @@ class LoginPage extends StatelessWidget {
                     hintText: "••••••••",
                     hintIcon: Icons.lock_outline,
                     isPassword: true,
+                    controller: _passwordController,
                   ),
 
-                  // Forgot password
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton(
-                      onPressed: () {},
-                      child: const Text(
-                        "Forgot password?",
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFF818CF8),
-                          fontWeight: FontWeight.w600,
+                  if (!_isSignUp)
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: () {},
+                        child: const Text(
+                          "Forgot password?",
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Color(0xFF818CF8),
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ),
-                  ),
 
                   const SizedBox(height: 8),
 
-                  // Sign In Trigger Wrap
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => const HomeScreen()),
-                      );
-                    },
-                    child: const SignIn(),
-                  ),
+                  if (_loading)
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 12),
+                      child: Center(child: CircularProgressIndicator()),
+                    )
+                  else ...[
+                    // Primary action: Sign In or Create Account depending on mode
+                    _isSignUp
+                        ? CreateAccount(onPressed: _handleCreateAccount)
+                        : SignIn(onPressed: _handleSignIn),
 
-                  const SizedBox(height: 12),
+                    const SizedBox(height: 12),
 
-                  // Create Account Trigger Wrap
-                  GestureDetector(
-                    onTap: () {
-                      // Optional: Link to a registration page here if needed
-                    },
-                    child: const CreateAccount(),
-                  ),
-                  
+                    // Toggle between modes
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _isSignUp = !_isSignUp;
+                        });
+                      },
+                      child: Center(
+                        child: Text(
+                          _isSignUp
+                              ? "Already have an account? Sign In"
+                              : "New here? Create Account",
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF818CF8),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+
                   const SizedBox(height: 24),
 
                   // Footer

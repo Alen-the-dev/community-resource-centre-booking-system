@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:resource_hub/PAGES/home_screen.dart';
 import 'package:resource_hub/mycolors.dart';
 
 class SignIn extends StatefulWidget {
-  const SignIn({super.key});
+  final VoidCallback? onPressed;
+
+  const SignIn({super.key, this.onPressed});
 
   @override
   State<SignIn> createState() => _SignInState();
@@ -16,12 +17,7 @@ class _SignInState extends State<SignIn> {
                     width: double.infinity,
                     height: 50,
                     child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).push(MaterialPageRoute(builder:(context){
-                          return HomeScreen();
-                        }));//this when pressed opens homepage
-                        
-                      },
+                      onPressed: widget.onPressed,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Mycolors.primary,
                         shape: RoundedRectangleBorder(

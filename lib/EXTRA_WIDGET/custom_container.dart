@@ -4,12 +4,14 @@ class CustomContainer extends StatefulWidget {
   final String hintText;
   final IconData hintIcon;
   final bool isPassword;
+  final TextEditingController? controller;
 
   const CustomContainer({
     super.key,
     required this.hintText,
     required this.hintIcon,
     this.isPassword = false, // default false
+    this.controller,
   });
 
   @override
@@ -35,6 +37,7 @@ class _CustomContainerState extends State<CustomContainer> {
         ],
       ),
       child: TextFormField(
+        controller: widget.controller,
         obscureText: widget.isPassword ? _obscure : false,
         decoration: InputDecoration(
           contentPadding: const EdgeInsets.symmetric(vertical: 16),

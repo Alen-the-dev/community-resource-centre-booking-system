@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:resource_hub/EXTRA_WIDGET/searchbar.dart';
 import 'package:resource_hub/mycolors.dart';
 import 'package:resource_hub/EXTRA_WIDGET/categories.dart';
@@ -18,6 +19,20 @@ class _HomePageContentState extends State<HomePageContent> {
   String selectedFilter = 'All';
   String searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
+  String _firstName = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFirstName();
+  }
+
+  Future<void> _loadFirstName() async {
+    final prefs = await SharedPreferences.getInstance();
+    final name = prefs.getString('userFirstName') ?? '';
+    if (!mounted) return;
+    setState(() => _firstName = name);
+  }
 
   @override
   void dispose() {
@@ -48,10 +63,10 @@ class _HomePageContentState extends State<HomePageContent> {
         automaticallyImplyLeading: false,
         title: Row(
           children: [
-            const Column(
+            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                const Text(
                   'Good morning',
                   style: TextStyle(
                       fontSize: 13,
@@ -59,8 +74,8 @@ class _HomePageContentState extends State<HomePageContent> {
                       fontWeight: FontWeight.w400),
                 ),
                 Text(
-                  'Hello, There',
-                  style: TextStyle(
+                  _firstName.isEmpty ? 'Hello, There' : 'Hello, $_firstName',
+                  style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: Colors.white),
@@ -68,9 +83,9 @@ class _HomePageContentState extends State<HomePageContent> {
               ],
             ),
             const Spacer(),
-            const CircleAvatar(
+            CircleAvatar(
               backgroundColor: Color(0xFF818CF8),
-              child: Text('A',
+              child: Text(_firstName.isEmpty ? 'A' : _firstName[0].toUpperCase(),
                   style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
