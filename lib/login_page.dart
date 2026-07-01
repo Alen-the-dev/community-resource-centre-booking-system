@@ -33,7 +33,7 @@ class LoginPage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: const Icon(
-                      Icons.book_online,
+                      Icons.account_balance,
                       color: Colors.white,
                       size: 36,
                     ),

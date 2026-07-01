@@ -285,7 +285,7 @@ class _UploadResourceScreenState extends State<UploadResourceScreen> {
                 disabledBackgroundColor: const Color(0xFFE2E8F0),
                 padding: const EdgeInsets.symmetric(vertical: 15),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
+                    borderRadius: BorderRadius.circular(12))
               ),
               child: _isSubmitting
                   ? const SizedBox(

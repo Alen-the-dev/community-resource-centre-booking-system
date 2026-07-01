@@ -59,7 +59,7 @@ class _HomePageContentState extends State<HomePageContent> {
                       fontWeight: FontWeight.w400),
                 ),
                 Text(
-                  'Hello, Alen 👋',
+                  'Hello, There',
                   style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
